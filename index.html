@@ -1,15 +1,578 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <title>FA | Cybersecurity Portfolio</title>
-    <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fabri // SOC Analyst L1</title>
+<meta name="description" content="Portfolio de Fabri — Estudiante de Ingeniería en Informática, en camino a SOC Analyst L1 / Blue Team.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0a0d0b;
+    --bg-panel: #101512;
+    --bg-panel-alt: #141b17;
+    --border: #1f2b25;
+    --border-bright: #2c3d33;
+    --text: #d9e6df;
+    --text-dim: #7c8f86;
+    --text-faint: #4d5c55;
+    --accent: #8fd14f;      /* phosphor green, desaturated */
+    --accent-dim: #5f8f3d;
+    --sev-critical: #ff5c5c;
+    --sev-high: #ffa94d;
+    --sev-medium: #ffd43d;
+    --sev-ok: #8fd14f;
+    --mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+    --sans: 'IBM Plex Sans', system-ui, -apple-system, sans-serif;
+  }
+
+  *{ box-sizing: border-box; margin:0; padding:0; }
+
+  html{ scroll-behavior: smooth; }
+
+  body{
+    background: var(--bg);
+    background-image:
+      radial-gradient(circle at 15% 0%, rgba(143,209,79,0.05), transparent 45%),
+      repeating-linear-gradient(180deg, rgba(255,255,255,0.012) 0px, rgba(255,255,255,0.012) 1px, transparent 1px, transparent 3px);
+    color: var(--text);
+    font-family: var(--sans);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  a{ color: inherit; }
+  ::selection{ background: var(--accent-dim); color: #0a0d0b; }
+
+  :focus-visible{
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+
+  .wrap{ max-width: 980px; margin: 0 auto; padding: 0 24px; }
+
+  /* ---------- NAV ---------- */
+  header{
+    position: sticky; top:0; z-index: 50;
+    background: rgba(10,13,11,0.85);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--border);
+  }
+  nav{
+    display:flex; align-items:center; justify-content:space-between;
+    padding: 16px 24px; max-width: 980px; margin:0 auto;
+    font-family: var(--mono);
+  }
+  .logo{
+    font-weight:700; font-size: 15px; letter-spacing: 0.5px; color: var(--text);
+    text-decoration:none;
+  }
+  .logo .cursor{ color: var(--accent); animation: blink 1.1s steps(1) infinite; }
+  .nav-links{ display:flex; gap: 28px; list-style:none; font-size: 13px; }
+  .nav-links a{ text-decoration:none; color: var(--text-dim); transition: color .15s; }
+  .nav-links a:hover{ color: var(--accent); }
+  .nav-toggle{ display:none; background:none; border:1px solid var(--border-bright); color: var(--text); font-family: var(--mono); font-size: 12px; padding: 6px 10px; border-radius: 4px; cursor:pointer; }
+
+  @media (max-width: 680px){
+    .nav-links{
+      position: absolute; top: 100%; left:0; right:0;
+      flex-direction: column; gap:0;
+      background: var(--bg-panel);
+      border-bottom: 1px solid var(--border);
+      max-height: 0; overflow: hidden;
+      transition: max-height .25s ease;
+    }
+    .nav-links.open{ max-height: 260px; }
+    .nav-links a{ display:block; padding: 14px 24px; border-top: 1px solid var(--border); }
+    .nav-toggle{ display:inline-block; }
+  }
+
+  /* ---------- HERO ---------- */
+  .hero{ padding: 72px 0 48px; }
+  .eyebrow{
+    font-family: var(--mono); font-size: 12px; color: var(--accent);
+    letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 18px;
+    display:flex; align-items:center; gap: 8px;
+  }
+  .eyebrow::before{ content:''; width:7px; height:7px; border-radius:50%; background: var(--accent); box-shadow: 0 0 8px var(--accent); }
+
+  .terminal{
+    background: var(--bg-panel);
+    border: 1px solid var(--border-bright);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px -20px rgba(0,0,0,0.6);
+  }
+  .terminal-bar{
+    display:flex; align-items:center; gap:8px;
+    padding: 10px 14px;
+    background: var(--bg-panel-alt);
+    border-bottom: 1px solid var(--border);
+  }
+  .dot{ width:10px; height:10px; border-radius:50%; }
+  .dot.r{ background:#ff5f57; } .dot.y{ background:#febc2e; } .dot.g{ background:#28c840; }
+  .terminal-title{ font-family: var(--mono); font-size: 12px; color: var(--text-faint); margin-left: 8px; }
+  .terminal-body{
+    padding: 24px; font-family: var(--mono); font-size: 14px;
+    min-height: 190px;
+  }
+  .terminal-body .line{ margin-bottom: 6px; white-space: pre-wrap; word-break: break-word; }
+  .terminal-body .prompt{ color: var(--accent); }
+  .terminal-body .out{ color: var(--text-dim); }
+  .terminal-body .highlight{ color: var(--accent); }
+  .cursor-block{ display:inline-block; width:8px; height:15px; background: var(--accent); vertical-align: text-bottom; animation: blink 1s steps(1) infinite; }
+  @keyframes blink{ 50%{ opacity:0; } }
+
+  .hero-tagline{ margin-top: 28px; max-width: 620px; color: var(--text-dim); font-size: 15.5px; }
+  .hero-tagline strong{ color: var(--text); font-weight: 600; }
+
+  .cta-row{ margin-top: 28px; display:flex; gap:14px; flex-wrap: wrap; }
+  .btn{
+    font-family: var(--mono); font-size: 13px; text-decoration:none;
+    padding: 11px 18px; border-radius: 6px; border: 1px solid var(--border-bright);
+    color: var(--text); transition: all .15s;
+  }
+  .btn.primary{ background: var(--accent); color: #0a0d0b; border-color: var(--accent); font-weight: 600; }
+  .btn.primary:hover{ background: #a3e069; }
+  .btn:not(.primary):hover{ border-color: var(--accent); color: var(--accent); }
+
+  /* ---------- SECTIONS GENERIC ---------- */
+  section{ padding: 64px 0; border-top: 1px solid var(--border); }
+  .section-head{ margin-bottom: 32px; }
+  .section-num{ font-family: var(--mono); font-size: 12px; color: var(--accent); margin-bottom: 6px; }
+  .section-title{ font-size: 24px; font-weight: 600; letter-spacing: -0.3px; }
+  .section-sub{ color: var(--text-dim); font-size: 14px; margin-top: 6px; max-width: 560px; }
+
+  .reveal{ opacity:0; transform: translateY(14px); transition: opacity .5s ease, transform .5s ease; }
+  .reveal.in{ opacity:1; transform: translateY(0); }
+
+  /* ---------- ABOUT ---------- */
+  .about-grid{ display:grid; grid-template-columns: 1.3fr 1fr; gap: 40px; }
+  .about-text p{ color: var(--text-dim); margin-bottom: 14px; font-size: 15px; }
+  .about-text strong{ color: var(--text); }
+  .stat-box{
+    background: var(--bg-panel); border:1px solid var(--border);
+    border-radius: 8px; padding: 18px 20px; margin-bottom: 12px;
+  }
+  .stat-box .k{ font-family: var(--mono); font-size: 22px; color: var(--accent); font-weight: 700; }
+  .stat-box .v{ font-size: 12.5px; color: var(--text-dim); margin-top: 4px; }
+  @media (max-width: 720px){ .about-grid{ grid-template-columns: 1fr; } }
+
+  /* ---------- ALERT QUEUE (SKILLS) ---------- */
+  .queue{
+    border: 1px solid var(--border); border-radius: 8px; overflow: hidden;
+    background: var(--bg-panel);
+  }
+  .queue-head{
+    display:grid; grid-template-columns: 110px 1fr 130px;
+    font-family: var(--mono); font-size: 11px; color: var(--text-faint);
+    text-transform: uppercase; letter-spacing: 0.8px;
+    padding: 10px 18px; border-bottom: 1px solid var(--border);
+    background: var(--bg-panel-alt);
+  }
+  .queue-row{
+    display:grid; grid-template-columns: 110px 1fr 130px; align-items:center;
+    padding: 14px 18px; border-bottom: 1px solid var(--border);
+    transition: background .15s;
+  }
+  .queue-row:last-child{ border-bottom:none; }
+  .queue-row:hover{ background: rgba(143,209,79,0.04); }
+  .sev{
+    font-family: var(--mono); font-size: 10.5px; font-weight: 700; letter-spacing: 0.5px;
+    padding: 4px 8px; border-radius: 4px; text-align:center; width: fit-content;
+  }
+  .sev.critical{ background: rgba(255,92,92,0.12); color: var(--sev-critical); border:1px solid rgba(255,92,92,0.3); }
+  .sev.high{ background: rgba(255,169,77,0.12); color: var(--sev-high); border:1px solid rgba(255,169,77,0.3); }
+  .sev.medium{ background: rgba(255,212,61,0.12); color: var(--sev-medium); border:1px solid rgba(255,212,61,0.3); }
+  .alert-name{ font-weight: 600; font-size: 14.5px; }
+  .alert-detail{ font-size: 12.5px; color: var(--text-dim); margin-top: 2px; }
+  .status{ font-family: var(--mono); font-size: 11px; color: var(--text-faint); text-align:right; }
+  .status .tag{ color: var(--accent); }
+  @media (max-width: 600px){
+    .queue-head{ display:none; }
+    .queue-row{ grid-template-columns: 1fr; gap: 8px; }
+    .status{ text-align:left; }
+  }
+
+  /* ---------- PROJECTS ---------- */
+  .projects{ display:flex; flex-direction: column; gap: 16px; }
+  .case{
+    border: 1px solid var(--border); border-radius: 8px; background: var(--bg-panel);
+    padding: 22px; transition: border-color .15s;
+  }
+  .case:hover{ border-color: var(--border-bright); }
+  .case-top{ display:flex; justify-content:space-between; align-items:flex-start; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
+  .case-id{ font-family: var(--mono); font-size: 11px; color: var(--text-faint); }
+  .case-title{ font-size: 17px; font-weight: 600; margin-top: 4px; }
+  .badge{
+    font-family: var(--mono); font-size: 10.5px; font-weight: 600; padding: 4px 10px;
+    border-radius: 20px; white-space: nowrap; height: fit-content;
+  }
+  .badge.dev{ background: rgba(255,169,77,0.12); color: var(--sev-high); border: 1px solid rgba(255,169,77,0.3); }
+  .badge.done{ background: rgba(143,209,79,0.12); color: var(--accent); border: 1px solid rgba(143,209,79,0.3); }
+  .case-desc{ color: var(--text-dim); font-size: 14px; margin-bottom: 14px; }
+  .stack{ display:flex; flex-wrap:wrap; gap: 8px; margin-bottom: 14px; }
+  .stack span{
+    font-family: var(--mono); font-size: 11px; color: var(--text-dim);
+    border: 1px solid var(--border-bright); padding: 3px 9px; border-radius: 4px;
+  }
+  .case-link{ font-family: var(--mono); font-size: 12.5px; color: var(--accent); text-decoration:none; }
+  .case-link:hover{ text-decoration: underline; }
+
+  /* ---------- CERTS / LOG ---------- */
+  .log{ font-family: var(--mono); font-size: 13.5px; }
+  .log-row{
+    display:flex; gap: 14px; padding: 12px 0; border-bottom: 1px solid var(--border);
+    align-items: baseline;
+  }
+  .log-row:last-child{ border-bottom:none; }
+  .log-check{ color: var(--accent); flex-shrink:0; }
+  .log-text{ color: var(--text); }
+  .log-text .dim{ color: var(--text-dim); font-family: var(--sans); font-size: 13px; }
+
+  /* ---------- CONTACT / FOOTER ---------- */
+  footer{ padding: 56px 0 40px; border-top: 1px solid var(--border); }
+  .contact-terminal{ font-family: var(--mono); font-size: 14px; }
+  .contact-terminal .prompt{ color: var(--accent); }
+  .contact-links{ display:flex; gap: 22px; margin-top: 20px; flex-wrap: wrap; }
+  .contact-links a{ font-family: var(--mono); font-size: 13.5px; text-decoration:none; color: var(--text-dim); border-bottom: 1px solid transparent; transition: all .15s; }
+  .contact-links a:hover{ color: var(--accent); border-color: var(--accent); }
+  .footnote{ margin-top: 36px; font-family: var(--mono); font-size: 11.5px; color: var(--text-faint); }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation: none !important; transition: none !important; }
+    .reveal{ opacity:1; transform:none; }
+  }
+</style>
 </head>
 <body>
 
-<h1>FA</h1>
-<p>Cybersecurity Student</p>
+<header>
+  <nav>
+    <a href="#top" class="logo">fabri@soc<span class="cursor">_</span></a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="#about">whoami</a></li>
+      <li><a href="#skills">skills</a></li>
+      <li><a href="#projects">proyectos</a></li>
+      <li><a href="#certs">formación</a></li>
+      <li><a href="#contact">contacto</a></li>
+    </ul>
+    <button class="nav-toggle" id="navToggle" aria-label="Abrir menú" aria-expanded="false">menu</button>
+  </nav>
+</header>
 
-<script src="script.js"></script>
+<main class="wrap" id="top">
+
+  <!-- HERO -->
+  <section class="hero" style="border-top:none;">
+    <div class="eyebrow">disponible para roles junior</div>
+    <div class="terminal">
+      <div class="terminal-bar">
+        <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+        <span class="terminal-title">fabri — zsh — 80x24</span>
+      </div>
+      <div class="terminal-body" id="typedBody"></div>
+    </div>
+
+    <p class="hero-tagline">
+      <strong>Fabri</strong> — estudiante de Ingeniería en Informática (UNDAV, Buenos Aires) enfocado en ciberseguridad defensiva.
+      Buscando dar el salto a <strong>SOC Analyst L1 / Blue Team</strong>, con la mira puesta en Cyber Threat Intelligence a mediano plazo.
+    </p>
+
+    <div class="cta-row">
+      <a href="#projects" class="btn primary">Ver proyectos</a>
+      <a href="#contact" class="btn">Contactar</a>
+      <!-- TODO: reemplazá por tu CV real en /assets/cv.pdf -->
+      <a href="#" class="btn">Descargar CV</a>
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section id="about">
+    <div class="section-head reveal">
+      <div class="section-num">01 / whoami</div>
+      <h2 class="section-title">Sobre mí</h2>
+    </div>
+    <div class="about-grid reveal">
+      <div class="about-text">
+        <p>
+          Curso el segundo año de <strong>Ingeniería en Informática en UNDAV</strong>, y hace tiempo vengo formándome
+          en paralelo por fuera de la currícula formal: SIEM, threat intelligence, análisis de red y fundamentos de
+          sistemas operativos, con el objetivo concreto de entrar como <strong>SOC Analyst L1</strong>.
+        </p>
+        <p>
+          Completé el recorrido completo de <strong>Cisco NetAcad — Cybersecurity Defense Analyst</strong> (8 cursos,
+          incluyendo Splunk ES y SOAR), hice ride-alongs de investigación tipo <strong>BOTS</strong> y resolví labs
+          de <strong>BTLO</strong>. Ahora estoy construyendo portfolio propio con proyectos de punta a punta.
+        </p>
+        <p>
+          Fuera de la seguridad, curioseo bastante de tecnología en general y sigo de cerca a Barcelona y Boca —
+          por si el terminal no lo dejaba lo suficientemente en claro.
+        </p>
+      </div>
+      <div class="about-stats">
+        <div class="stat-box">
+          <div class="k">8/8</div>
+          <div class="v">cursos completos — Cisco NetAcad Cybersecurity Defense Analyst</div>
+        </div>
+        <div class="stat-box">
+          <div class="k">2+</div>
+          <div class="v">investigaciones prácticas resueltas (BOTS / BTLO)</div>
+        </div>
+        <div class="stat-box">
+          <div class="k">L1</div>
+          <div class="v">objetivo de rol: SOC Analyst → Blue Team → CTI</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SKILLS AS ALERT QUEUE -->
+  <section id="skills">
+    <div class="section-head reveal">
+      <div class="section-num">02 / triage</div>
+      <h2 class="section-title">Cola de alertas — skills</h2>
+      <p class="section-sub">Mis herramientas y conocimientos, priorizados como si fueran alertas en una cola de SOC.</p>
+    </div>
+
+    <div class="queue reveal">
+      <div class="queue-head">
+        <span>Severidad</span><span>Alerta</span><span>Estado</span>
+      </div>
+
+      <div class="queue-row">
+        <span class="sev critical">CRITICAL</span>
+        <div>
+          <div class="alert-name">SIEM &amp; Detección</div>
+          <div class="alert-detail">Splunk Enterprise, Splunk ES, SOAR — correlación de eventos y dashboards</div>
+        </div>
+        <span class="status"><span class="tag">●</span> triaged</span>
+      </div>
+
+      <div class="queue-row">
+        <span class="sev high">HIGH</span>
+        <div>
+          <div class="alert-name">Threat Intelligence</div>
+          <div class="alert-detail">MITRE ATT&amp;CK, Cyber Kill Chain, Pyramid of Pain</div>
+        </div>
+        <span class="status"><span class="tag">●</span> triaged</span>
+      </div>
+
+      <div class="queue-row">
+        <span class="sev high">HIGH</span>
+        <div>
+          <div class="alert-name">Análisis de red</div>
+          <div class="alert-detail">Wireshark — inspección de paquetes y tráfico sospechoso</div>
+        </div>
+        <span class="status"><span class="tag">●</span> triaged</span>
+      </div>
+
+      <div class="queue-row">
+        <span class="sev medium">MEDIUM</span>
+        <div>
+          <div class="alert-name">Scripting &amp; automatización</div>
+          <div class="alert-detail">Python — consumo de APIs (VirusTotal, AlienVault OTX)</div>
+        </div>
+        <span class="status">en progreso</span>
+      </div>
+
+      <div class="queue-row">
+        <span class="sev medium">MEDIUM</span>
+        <div>
+          <div class="alert-name">Fundamentos de programación</div>
+          <div class="alert-detail">C++, estructuras de datos (diccionarios, tries, contadores)</div>
+        </div>
+        <span class="status"><span class="tag">●</span> triaged</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROJECTS -->
+  <section id="projects">
+    <div class="section-head reveal">
+      <div class="section-num">03 / casos</div>
+      <h2 class="section-title">Proyectos</h2>
+      <p class="section-sub">Investigaciones y herramientas, documentadas como casos resueltos.</p>
+    </div>
+
+    <div class="projects reveal">
+
+      <div class="case">
+        <div class="case-top">
+          <div>
+            <div class="case-id">CASE-001</div>
+            <div class="case-title">IOC Enrichment Tool</div>
+          </div>
+          <span class="badge dev">EN DESARROLLO</span>
+        </div>
+        <p class="case-desc">
+          Herramienta en Python que enriquece indicadores de compromiso (IPs, hashes, dominios) consultando
+          las APIs de VirusTotal y AlienVault OTX, centralizando el contexto que un analista necesita para triar
+          una alerta más rápido.
+        </p>
+        <div class="stack"><span>Python</span><span>VirusTotal API</span><span>AlienVault OTX</span><span>REST</span></div>
+        <!-- TODO: actualizá el link cuando subas el repo -->
+        <a href="#" class="case-link">→ ver repositorio</a>
+      </div>
+
+      <div class="case">
+        <div class="case-top">
+          <div>
+            <div class="case-id">CASE-002</div>
+            <div class="case-title">BOTS — Frothly Brewery</div>
+          </div>
+          <span class="badge done">COMPLETADO</span>
+        </div>
+        <p class="case-desc">
+          Ride-along de investigación sobre el dataset de Boss of the SOC, identificando actividad asociada
+          a Acunetix y al actor Po1s0n1vy dentro del entorno de Frothly Brewery.
+        </p>
+        <div class="stack"><span>Splunk</span><span>Threat Hunting</span><span>Log Analysis</span></div>
+        <a href="#" class="case-link">→ ver writeup</a>
+      </div>
+
+      <div class="case">
+        <div class="case-top">
+          <div>
+            <div class="case-id">CASE-003</div>
+            <div class="case-title">BTLO — Phishing Analysis &amp; The Report</div>
+          </div>
+          <span class="badge done">COMPLETADO</span>
+        </div>
+        <p class="case-desc">
+          Dos labs de Blue Team Labs Online: análisis de un correo de phishing de punta a punta y redacción
+          de un informe de incidente siguiendo estructura profesional.
+        </p>
+        <div class="stack"><span>Email Analysis</span><span>Incident Reporting</span></div>
+        <a href="#" class="case-link">→ ver writeup</a>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- CERTS / TRAINING -->
+  <section id="certs">
+    <div class="section-head reveal">
+      <div class="section-num">04 / logs</div>
+      <h2 class="section-title">Formación</h2>
+    </div>
+    <div class="log reveal">
+      <div class="log-row">
+        <span class="log-check">[OK]</span>
+        <span class="log-text">Cisco NetAcad — Cybersecurity Defense Analyst <span class="dim">(8/8 cursos, incluye Splunk ES &amp; SOAR)</span></span>
+      </div>
+      <div class="log-row">
+        <span class="log-check">[OK]</span>
+        <span class="log-text">Hack The Box Academy <span class="dim">— acceso activo, módulos en curso</span></span>
+      </div>
+      <div class="log-row">
+        <span class="log-check">[~]</span>
+        <span class="log-text">Google Cybersecurity Certificate (Coursera) <span class="dim">— en curso</span></span>
+      </div>
+      <div class="log-row">
+        <span class="log-check">[OK]</span>
+        <span class="log-text">Ingeniería en Informática — UNDAV <span class="dim">(2º año, en curso)</span></span>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="wrap" id="contact">
+  <div class="section-num">05 / eof</div>
+  <div class="contact-terminal">
+    <div><span class="prompt">$</span> cat contacto.txt</div>
+    <div style="margin-top:8px; color: var(--text-dim);">Buscando activamente oportunidades junior en ciberseguridad (SOC / Blue Team). Escribime.</div>
+  </div>
+  <div class="contact-links">
+    <!-- TODO: completá con tus datos reales -->
+    <a href="mailto:tu-email@ejemplo.com">email</a>
+    <a href="https://github.com/tu-usuario" target="_blank" rel="noopener">github</a>
+    <a href="https://linkedin.com/in/tu-usuario" target="_blank" rel="noopener">linkedin</a>
+  </div>
+  <div class="footnote">// build: static · hosted on GitHub Pages · zero dependencies</div>
+</footer>
+
+<script>
+  // Mobile nav toggle
+  const navToggle = document.getElementById('navToggle');
+  const navLinks = document.getElementById('navLinks');
+  navToggle.addEventListener('click', () => {
+    const isOpen = navLinks.classList.toggle('open');
+    navToggle.setAttribute('aria-expanded', isOpen);
+  });
+  navLinks.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+    navLinks.classList.remove('open');
+    navToggle.setAttribute('aria-expanded', false);
+  }));
+
+  // Terminal typing sequence
+  const lines = [
+    { type: 'prompt', text: 'whoami' },
+    { type: 'out', text: 'fabri — estudiante de Ingeniería en Informática @ UNDAV' },
+    { type: 'prompt', text: 'cat objetivo.txt' },
+    { type: 'out', text: 'SOC Analyst L1 -> Blue Team -> Cyber Threat Intelligence' },
+    { type: 'prompt', text: 'status --career' },
+    { type: 'out', text: 'buscando primera oportunidad junior en ciberseguridad', highlight: true }
+  ];
+
+  const body = document.getElementById('typedBody');
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function renderStatic(){
+    body.innerHTML = lines.map(l => {
+      if(l.type === 'prompt') return `<div class="line"><span class="prompt">$</span> ${l.text}</div>`;
+      return `<div class="line out">${l.highlight ? `<span class="highlight">${l.text}</span>` : l.text}</div>`;
+    }).join('');
+  }
+
+  if(reduceMotion){
+    renderStatic();
+  } else {
+    let li = 0;
+    function typeLine(){
+      if(li >= lines.length){
+        const cur = document.createElement('span');
+        cur.className = 'cursor-block';
+        body.appendChild(cur);
+        return;
+      }
+      const l = lines[li];
+      const div = document.createElement('div');
+      div.className = 'line' + (l.type === 'out' ? ' out' : '');
+      body.appendChild(div);
+
+      if(l.type === 'prompt'){
+        div.innerHTML = '<span class="prompt">$</span> ';
+        let i = 0;
+        const iv = setInterval(() => {
+          div.innerHTML = '<span class="prompt">$</span> ' + l.text.slice(0, i+1);
+          i++;
+          if(i >= l.text.length){ clearInterval(iv); li++; setTimeout(typeLine, 220); }
+        }, 22);
+      } else {
+        div.innerHTML = l.highlight ? `<span class="highlight"></span>` : '';
+        const target = l.highlight ? div.querySelector('.highlight') : div;
+        let i = 0;
+        const iv = setInterval(() => {
+          target.textContent = l.text.slice(0, i+1);
+          i++;
+          if(i >= l.text.length){ clearInterval(iv); li++; setTimeout(typeLine, 160); }
+        }, 10);
+      }
+    }
+    typeLine();
+  }
+
+  // Scroll reveal
+  const revealEls = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, { threshold: 0.12 });
+  revealEls.forEach(el => io.observe(el));
+</script>
+
 </body>
 </html>
